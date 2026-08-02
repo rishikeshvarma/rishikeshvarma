@@ -50,10 +50,10 @@
 ### 📊 GitHub Stats & Streak
 
 <p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=YOUR_GITHUB_USERNAME&theme=tokyonight&hide_border=false" alt="GitHub Streak" width="48%" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=YOUR_GITHUB_USERNAME&layout=compact&theme=tokyonight&hide_border=false" alt="Top Languages" width="48%" />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rishikeshvarma&theme=tokyonight&hide_border=false" alt="GitHub Streak" width="48%" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rishikeshvarma&layout=compact&theme=tokyonight&hide_border=false" alt="Top Languages" width="48%" />
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=YOUR_GITHUB_USERNAME&show_icons=true&theme=tokyonight&hide_border=false" alt="GitHub Stats" width="97%" />
+  <img src="https://github-readme-stats.vercel.app/api?username=rishikeshvarma&show_icons=true&theme=tokyonight&hide_border=false" alt="GitHub Stats" width="97%" />
 </p>
