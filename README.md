@@ -21,10 +21,10 @@
 
 | Project | What it is |
 |---|---|
-| **AppCompiler + evals** | LLM pipeline that compiles a plain-English request into UI, API and DB schemas, with an eval harness, tracing and CI. |
-| **MCP-Shield** | Security middleware for MCP: detects indirect prompt injection and confused-deputy attacks using a tiered cascade, down to a local SLM. Built with my KMIT teammates. |
+| **MCP-Shield** | Security middleware for MCP: detects indirect prompt injection and confused-deputy attacks using a tiered cascade, down to a local SLM. |
 | **Agent-Dummie** | A local AI companion with deterministic, gated memory, voice, vision and a memory-vs-search intent router. Work in progress. |
 | **PhishNinja** | NLP-driven phishing and spam detection with explainable AI, shipped as a real-time security analysis mobile app. |
+| **AppCompiler + evals** | LLM pipeline that compiles a plain-English request into UI, API and DB schemas, with an eval harness, tracing and CI. |
 
 ---
 
