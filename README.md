@@ -1,60 +1,98 @@
-<h1 align="center">Hi, I'm Rishikesh Varma 👋</h1>
+<h1 align="center">Hi, I'm Kucharlapati Sri Rishikesh Varma 👋</h1>
 
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=22&pause=1000&color=38BDF8&center=true&vcenter=true&width=700&lines=I+build+LLM+systems+and+the+tests+that+break+them;Evals%2C+tracing+%26+regression+suites;LLM+security+%26+MCP+pipelines;Final-year+CSE+(AI%2FML)+%40+KMIT" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=22&pause=1000&color=38BDF8&center=true&vcenter=true&width=700&lines=Final-Year+CS+%26+AI%2FML+Student+%40+KMIT;Securing+AI+Agents+%26+MCP+Pipelines;Building+Agent-Dummie+%40+Dummie-Labs;Small+Language+Models+%26+Agentic+Systems" alt="Typing SVG" />
 </p>
 
 ---
 
-### 🚀 About me
+### 🚀 About Me
 
-* 🎓 Final-year B.Tech in Computer Science & Engineering (AI & ML) at Keshav Memorial Institute of Technology (KMIT), Hyderabad.
-* 🧪 **Now:** an eval harness for [AppCompiler](https://github.com/rishikeshvarma/APP_Compiler): deterministic checks, an LLM-as-judge, step-level traces and a regression gate. It found 4 bugs in my own compiler, and each one is now a test.
-* 🛡️ **Final-year project (team of 4, in progress):** [MCP-Shield](https://github.com/rishikeshvarma/MCP-Shield), an inline firewall for Model Context Protocol traffic aimed at indirect prompt injection and confused-deputy attacks.
-* 🤖 **On the side:** Agent-Dummie, a local-first AI companion built on local LLMs via Ollama (work in progress).
-* 📚 Preparing for GATE 2027 (Data Science & AI), then a Master's in AI.
-* 🇩🇪 English, Telugu, and learning German.
-
----
-
-### 🔬 Featured work
-
-| Project | What it is | Status |
-|---|---|---|
-| [**AppCompiler + evals**](https://github.com/rishikeshvarma/APP_Compiler) | A 4-stage LLM pipeline that turns a plain-English request into UI layout JSON, API specs and a Postgres schema, plus an eval harness with tracing and CI. | Working |
-| [**PhishNinja-V2**](https://github.com/rishikeshvarma/PhishNinja-V2) | Multi-agent phishing detection: pgvector similarity first, Llama 3.1 8B on Groq for explainable verdicts. | Working |
-| [**MCP-Shield**](https://github.com/rishikeshvarma/MCP-Shield) | Tiered firewall design for MCP traffic (structural checks, vector/entropy scoring, local model tier). | Design stage, implementation in progress |
+* 🎓 **Education:** Final-year B.Tech in Computer Science & Engineering (AI & ML) at Keshav Memorial Institute of Technology (KMIT).
+* 🛡️ **Final-Year Project:** **MCP-Shield** — an inline semantic firewall for Model Context Protocol (MCP) traffic. Ships as a Python `@shield` decorator (`mcp-shield-llm`) with a 3-tier cascade (header check → vector/entropy filter → local fine-tuned SLM) to catch indirect prompt injection and confused-deputy attacks.
+* 🤖 **Building:** **Agent-Dummie** under **Dummie-Labs** — a personal, local-first AI companion with dual memory (SQLite + Obsidian vault), built on local LLMs via Ollama.
+* 🧠 **Exploring:** Small Language Models for cybersecurity — training compact security-focused models (100M–1B params) for prompt-injection and phishing defense.
+* 📚 **Target:** GATE 2027 (Data Science & Artificial Intelligence), then a Master's in AI.
+* 🇩🇪 **Sprachen:** English, Telugu, and learning German (*Ich lerne Deutsch!*).
 
 ---
 
-### 📄 Publications & patent
+### 🔬 Featured Work
+
+| Project | What it is |
+|---|---|
+| **AppCompiler + evals** | LLM pipeline that compiles a plain-English request into UI, API and DB schemas, with an eval harness, tracing and CI. |
+| **MCP-Shield** | Security middleware for MCP: detects indirect prompt injection and confused-deputy attacks using a tiered cascade, down to a local SLM. Built with my KMIT teammates. |
+| **Agent-Dummie** | A local AI companion with deterministic, gated memory, voice, vision and a memory-vs-search intent router. Work in progress. |
+| **PhishNinja** | NLP-driven phishing and spam detection with explainable AI, shipped as a real-time security analysis mobile app. |
+
+---
+
+### 📄 Publications & Patents
 
 * **IEEE (DELCON):** [*Phishing Detection: A Comprehensive Survey of Methods and Trends*](https://ieeexplore.ieee.org/document/11400192)
-* **Indian patent application (published, co-inventor):** *PhishNinja: An NLP-Driven Framework for Phishing and Spam Detection Using Explainable AI*, No. 202541111904 A
+* **Indian Patent Application (Published):** *PhishNinja: An NLP-Driven Framework for Phishing and Spam Detection Using Explainable AI* — App. No. 202541111904 A (co-inventor)
+* **Next up:** MCP-Shield research write-up
 
 ---
 
-### 💻 Tech I use
+### 🌐 Connect with Me
 
 <p>
-  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
-  <img src="https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white" />
-  <img src="https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" />
-  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
-  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" />
-  <img src="https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white" />
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-  <img src="https://img.shields.io/badge/Linux-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" />
+  <a href="https://linkedin.com/in/rishikeshvarma-kucharlapati" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a>
+  <a href="mailto:rishikeshvarma9854@gmail.com">
+    <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+  </a>
 </p>
 
 ---
 
-### 🌐 Connect
+### 💻 Tech Stack
 
 <p>
-  <a href="https://linkedin.com/in/rishikeshvarma-kucharlapati"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
-  <a href="mailto:rishikeshvarma9854@gmail.com"><img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
+  <!-- Programming Languages -->
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
+  <img src="https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
+
+  <!-- AI / LLM / Data Science -->
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" />
+  <img src="https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" />
+  <img src="https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" />
+  <img src="https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white" />
+  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" />
+  <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" />
+  <img src="https://img.shields.io/badge/llama.cpp-5A4FCF?style=for-the-badge&logo=llama&logoColor=white" />
+
+  <!-- Backend & Databases -->
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+
+  <!-- Tools & Environment -->
+  <img src="https://img.shields.io/badge/Linux%2FUbuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
+  <img src="https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white" />
+  <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white" />
+</p>
+
+---
+
+### 📊 GitHub Stats & Streak
+
+<p align="center">
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rishikeshvarma&theme=tokyonight&hide_border=false" alt="GitHub Streak" width="48%" />
+  <img src="https://github-stats-extended.vercel.app/api/top-langs/?username=rishikeshvarma&layout=compact&theme=tokyonight&hide_border=false" alt="Top Languages" width="48%" />
+</p>
+
+<p align="center">
+  <img src="https://github-stats-extended.vercel.app/api?username=rishikeshvarma&show_icons=true&theme=tokyonight&hide_border=false" alt="GitHub Stats" width="97%" />
 </p>
