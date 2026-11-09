@@ -1,3 +1,5 @@
 # original source images (uncropped photo etc.) stay local
 tools/src/
 __pycache__/
+# generated one-off images (LinkedIn cover, ...)
+tools/out/

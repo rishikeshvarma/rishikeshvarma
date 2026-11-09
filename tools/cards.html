@@ -102,6 +102,21 @@ async function build() {
       </div>`;
     const c = document.getElementById("c");
     drawPortrait(canvasAt(c, 800, 0, 480, 400), { cx: 290, cy: 300, scale: 258 });
+  } else if (card === "linkedin") {
+    // LinkedIn cover, 1584 x 396, square corners. LinkedIn's profile photo
+    // covers roughly the bottom-left 470 x 200, so the text starts right of it.
+    root.innerHTML = `
+      <div class="card" id="c" style="width:1584px;height:396px">
+        <div class="glow" style="width:720px;height:720px;right:-90px;top:-170px"></div>
+        <div style="position:absolute;left:505px;top:50px;display:grid;gap:16px;width:620px">
+          <span class="meta" style="font-size:17px">K. SRI RISHIKESH VARMA · AI &amp; ML ENGINEER</span>
+          <div class="name" style="font-size:74px">Hi, I'm<br>Rishikesh<span>.</span></div>
+          <div class="role" style="font-size:23px">I build agents that remember, LLMs that run locally,<br>evals that catch the bugs, and <b>firewalls for AI agents.</b></div>
+          <div class="meta" style="color:#c8f135;font-size:17px">↗ rishikeshvarma.fun</div>
+        </div>
+      </div>`;
+    const c = document.getElementById("c");
+    drawPortrait(canvasAt(c, 1120, 0, 464, 396), { cx: 262, cy: 300, scale: 262 });
   } else {
     root.innerHTML = `<div class="card fav" id="c"><b>R</b><i></i></div>`;
   }
