@@ -1,8 +1,8 @@
 /* =====================================================================
    Hero: 3D particle portrait.
-   16k points sampled from the photo (tools/build_assets.py) swarm in
-   and assemble the portrait, push away from the cursor, scatter into
-   dust as you scroll, and burst when you type "fun".
+   ~36k dots on a halftone grid built from the photo (tools/build_assets.py)
+   swarm in and assemble the portrait, push away from the cursor, scatter
+   into dust as you scroll, and burst when you type "fun".
    ===================================================================== */
 (function () {
   "use strict";
@@ -25,29 +25,40 @@
   const group = new THREE.Group();
   scene.add(group);
 
-  // ---- decode point cloud -------------------------------------------
-  const bin = atob(P.data);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  // ---- decode the dot grid --------------------------------------------
+  // Each grid cell with a tone > 0 becomes one dot (tools/build_assets.py).
+  const bytesOf = (s) => {
+    const bin = atob(s), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u;
+  };
+  const tone = bytesOf(P.tone), depth = bytesOf(P.depth);
   const N = P.n;
-  const xyz = new Int16Array(bytes.buffer, 0, N * 3);
   const target = new Float32Array(N * 3);
   const start = new Float32Array(N * 3);
   const bright = new Float32Array(N);
   const rnd = new Float32Array(N);
   let seed = 11;
   const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < N; i++) {
-    target[i * 3] = xyz[i * 3] / 16000;
-    target[i * 3 + 1] = xyz[i * 3 + 1] / 16000;
-    target[i * 3 + 2] = xyz[i * 3 + 2] / 16000;
-    bright[i] = bytes[N * 6 + i] / 255;
-    rnd[i] = rand();
-    // start: a loose swirling galaxy around the portrait
-    const a = rand() * Math.PI * 2, r = 1.6 + rand() * 2.6, h = (rand() - 0.5) * 2.4;
-    start[i * 3] = Math.cos(a) * r;
-    start[i * 3 + 1] = h;
-    start[i * 3 + 2] = Math.sin(a) * r - 1.2;
+  const hash = (x, y) => { const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return s - Math.floor(s); };
+  let i = 0;
+  for (let r = 0; r < P.rows; r++) {
+    for (let c = 0; c < P.cols; c++) {
+      const t = tone[r * P.cols + c];
+      if (!t || i >= N) continue;
+      bright[i] = t / 255;
+      // a touch of jitter keeps the grid from looking like a screen
+      target[i * 3] = P.x0 + (c + (hash(c, r) - 0.5) * 0.16) * P.step;
+      target[i * 3 + 1] = P.y0 - (r + (hash(c + 71, r + 13) - 0.5) * 0.16) * P.step;
+      target[i * 3 + 2] = (depth[i] / 255) * P.zmax + bright[i] * 0.03;
+      rnd[i] = rand();
+      // start: a loose swirling galaxy around the portrait
+      const a = rand() * Math.PI * 2, rr = 1.6 + rand() * 2.6, h = (rand() - 0.5) * 2.4;
+      start[i * 3] = Math.cos(a) * rr;
+      start[i * 3 + 1] = h;
+      start[i * 3 + 2] = Math.sin(a) * rr - 1.2;
+      i++;
+    }
   }
 
   const geo = new THREE.BufferGeometry();
@@ -63,8 +74,8 @@
     uMouseStrength: { value: 0 },
     uScatter: { value: 0 },
     uFun: { value: 0 },
-    uPR: { value: renderer.getPixelRatio() },
-    uSize: { value: 5.6 },
+    uStep: { value: P.step },
+    uScale: { value: 1000 },
     uCream: { value: new THREE.Color(0xf2ebdd) },
     uLime: { value: new THREE.Color(0xc8f135) },
   };
@@ -73,7 +84,7 @@
     uniforms,
     vertexShader: `
       attribute vec3 aStart; attribute float aBright; attribute float aRand;
-      uniform float uTime, uProgress, uMouseStrength, uScatter, uFun, uPR, uSize;
+      uniform float uTime, uProgress, uMouseStrength, uScatter, uFun, uStep, uScale;
       uniform vec3 uMouse;
       varying float vBright; varying float vTouch; varying float vRand; varying float vFade;
       void main(){
@@ -85,8 +96,8 @@
         swirl.xz = mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * swirl.xz;
         vec3 p = mix(swirl, position, t);
 
-        // breathing
-        p += 0.006 * vec3(sin(uTime * 1.3 + aRand * 31.0), cos(uTime * 1.1 + aRand * 17.0), sin(uTime * 0.9 + aRand * 11.0));
+        // breathing: a slow shimmer, kept well under the dot pitch so the face stays crisp
+        p += vec3(0.0006 * sin(uTime * 1.3 + aRand * 31.0), 0.0006 * cos(uTime * 1.1 + aRand * 17.0), 0.004 * sin(uTime * 0.9 + aRand * 11.0));
 
         // cursor: push particles away and lift them toward the camera
         vec2 d = p.xy - uMouse.xy;
@@ -109,17 +120,20 @@
         gl_Position = projectionMatrix * mv;
         vBright = aBright; vRand = aRand;
         vFade = 1.0 - uScatter * (0.35 + aRand * 0.65);
-        gl_PointSize = (1.0 + aBright * 1.8 + touch * 2.5 + uFun * 1.5) * uPR * uSize / -mv.z;
+        // dot size in world units (a share of the grid pitch), so it tracks the layout
+        float settle = mix(1.6, 1.0, t);
+        // halftone: dot area follows brightness
+        gl_PointSize = max(1.0, uStep * (0.22 + pow(aBright, 0.7) * 1.35 + touch * 1.6 + uFun * 1.2) * settle * uScale / -mv.z);
       }`,
     fragmentShader: `
       uniform vec3 uCream, uLime; uniform float uFun;
       varying float vBright; varying float vTouch; varying float vRand; varying float vFade;
       void main(){
         float d = length(gl_PointCoord - 0.5);
-        float a = smoothstep(0.5, 0.05, d);
-        vec3 col = mix(uCream, uLime, clamp(smoothstep(0.86, 1.0, vBright) * 0.35 + vTouch * 1.2, 0.0, 1.0));
+        float a = smoothstep(0.5, 0.14, d);
+        vec3 col = mix(uCream, uLime, clamp(vTouch * 1.2, 0.0, 1.0));
         col = mix(col, vRand > 0.5 ? uLime : vec3(1.0, 0.55, 0.38), uFun * step(0.3, fract(vRand * 7.0)) * 0.85);
-        gl_FragColor = vec4(col, a * (0.24 + vBright * 0.76) * 0.82 * vFade);
+        gl_FragColor = vec4(col, a * (0.12 + pow(vBright, 1.15) * 0.88) * 0.95 * vFade);
       }`,
     transparent: true,
     depthWrite: false,
@@ -153,12 +167,14 @@
     const halfW = halfH * camera.aspect;
     if (camera.aspect < 0.9) {
       const s = Math.min(halfW * 0.98, halfH * 0.62);
-      Object.assign(layout, { x: 0, y: halfH - s * 1.05 - 0.15, s, base: 0.62 });
+      // phones: a dimmed backdrop, raised so the eyes sit clear of the status pill
+      Object.assign(layout, { x: 0, y: halfH - s * 1.05 - 0.05, s, base: 0.62 });
     } else {
       const s = Math.min(halfH * 0.86, halfW * 0.42);
       Object.assign(layout, { x: Math.min(halfW * 0.6, halfW - s * 0.92), y: -halfH + s * 1.02, s, base: 1 });
     }
-    uniforms.uPR.value = renderer.getPixelRatio();
+    // device pixels per world unit at distance 1, times the portrait's scale
+    uniforms.uScale.value = layout.s * (h * renderer.getPixelRatio()) / (2 * Math.tan((camera.fov * Math.PI) / 360));
   }
   window.addEventListener("resize", resize);
   resize();
@@ -217,8 +233,9 @@
     }
 
     // gentle parallax toward the pointer
-    const tx = RV.reduced ? 0 : mouse.x * 0.42 + Math.sin(elapsed * 0.35) * 0.06;
-    const ty = RV.reduced ? 0 : -mouse.y * 0.14;
+    // (kept small: a big turn shows the portrait is a relief, not a head)
+    const tx = RV.reduced ? 0 : mouse.x * 0.24 + Math.sin(elapsed * 0.35) * 0.05;
+    const ty = RV.reduced ? 0 : -mouse.y * 0.1;
     rotY += (tx - rotY) * 0.06;
     rotX += (ty - rotX) * 0.06;
     group.position.set(layout.x, layout.y, 0);

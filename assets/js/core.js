@@ -238,6 +238,21 @@
     }, { passive: true });
     document.addEventListener("pointerleave", () => cur.classList.remove("is-live"));
     document.addEventListener("pointerenter", () => { if (shown) cur.classList.add("is-live"); });
+    // A modal <dialog> opens in the browser's top layer, above every z-index,
+    // so the project dialog used to hide this cursor (the native one is off).
+    // Make the cursor a manual popover, which lives in the top layer too, and
+    // re-raise it whenever a dialog opens: the newest top-layer entry paints last.
+    const canPop = typeof cur.showPopover === "function";
+    const raise = () => {
+      try { if (cur.matches(":popover-open")) cur.hidePopover(); cur.showPopover(); } catch (e) { /* keep going */ }
+    };
+    if (canPop) { cur.setAttribute("popover", "manual"); raise(); }
+    document.querySelectorAll("dialog").forEach((d) => {
+      new MutationObserver(() => {
+        if (canPop) { if (d.open) raise(); }
+        else document.body.classList.toggle("cursor-native", !!document.querySelector("dialog[open]"));
+      }).observe(d, { attributes: true, attributeFilter: ["open"] });
+    });
     (function follow() {
       rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
       dot.style.transform = `translate3d(${mx}px,${my}px,0)`;

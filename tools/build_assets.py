@@ -5,18 +5,19 @@ Builds the portfolio's image assets and the 3D particle-portrait data.
 
 Inputs  (tools/src/, kept local and git-ignored):  photo.jpg, swoc-badge.png, ties-logo.jpg
 Outputs (assets/):     img/rishikesh.jpg, img/swoc-badge.webp, img/ties.jpg,
-                       js/portrait-data.js  (particle portrait point cloud)
+                       js/portrait-data.js  (particle portrait as a halftone dot grid)
+
+Needs numpy, Pillow and opencv-python.
 """
 
 from __future__ import annotations
 
 import argparse
 import base64
-import math
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "tools" / "src"
@@ -48,99 +49,162 @@ def build_images():
     Image.open(SRC / "ties-logo.jpg").convert("RGB").save(IMG / "ties.jpg", quality=90)
 
 
-def build_portrait(n_points=16000, preview: Path | None = None, seed=7):
-    rng = np.random.default_rng(seed)
-    photo = Image.open(SRC / "photo.jpg").convert("RGB")
-    S = 360  # working resolution
-    k = photo.width / S
-    small = photo.resize((S, S), Image.LANCZOS)
-    rgb = np.asarray(small).astype(np.float32) / 255.0
+# The hair is near-black against dark leaves, so GrabCut trims it; this outline
+# (traced on a brightened copy of the photo) restores its full volume.
+HAIR = [
+    (452, 330), (436, 270), (426, 210), (432, 160), (452, 112), (482, 70), (518, 40),
+    (565, 20), (630, 12), (700, 14), (755, 28), (798, 56), (830, 96), (860, 140),
+    (882, 190), (892, 245), (896, 300), (890, 345), (700, 330), (520, 340),
+]
+HEAD = (668, 380, 236, 330)       # head (hair to chin) ellipse in source px: centre x, y, radius x, y
+FACE = (676, 452, 196, 262)       # skin of the face (brows to chin)
+STEP = 5                          # dot pitch in source pixels
+CENTRE, SCALE = (790.0, 690.0), 620.0  # source pixel -> portrait units ([-1, 1] tall)
+
+
+def person_mask(photo_bgr: np.ndarray) -> np.ndarray:
+    """Exact cut-out of the person: GrabCut, seeded from the hand-drawn outline."""
+    import cv2
+
+    H, W = photo_bgr.shape[:2]
+    poly = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(poly).polygon(SILHOUETTE, fill=255)
+    poly = np.asarray(poly) > 0
+    disk = lambda r: cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+    gc = np.full((H, W), cv2.GC_BGD, np.uint8)
+    gc[cv2.dilate(poly.astype(np.uint8), disk(40)) > 0] = cv2.GC_PR_BGD
+    gc[poly] = cv2.GC_PR_FGD
+    gc[cv2.erode(poly.astype(np.uint8), disk(45)) > 0] = cv2.GC_FGD
+    cv2.grabCut(photo_bgr, gc, None, np.zeros((1, 65)), np.zeros((1, 65)), 8, cv2.GC_INIT_WITH_MASK)
+    fg = ((gc == cv2.GC_FGD) | (gc == cv2.GC_PR_FGD)).astype(np.uint8)
+    hair = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(hair).polygon(HAIR, fill=255)
+    fg |= (np.asarray(hair) > 0).astype(np.uint8)
+
+    # largest piece only, holes filled, edge smoothed
+    _, lab, stats, _ = cv2.connectedComponentsWithStats(fg, 8)
+    fg = (lab == 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])).astype(np.uint8)
+    fg = cv2.morphologyEx(fg, cv2.MORPH_CLOSE, disk(6))
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(1 - fg, 4)
+    for i in range(1, n):
+        x, y, w, h, _ = stats[i]
+        if x > 0 and y > 0 and x + w < W and y + h < H:
+            fg[lab == i] = 1
+    return cv2.GaussianBlur(fg.astype(np.float32), (0, 0), 4) > 0.5
+
+
+def portrait_tone(rgb: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Per-pixel dot brightness in [0, 1]: the face gets local contrast so eyes,
+    brows, smile and beard read; the shirt is dimmed so the face leads."""
+    import cv2
+
+    H, W = mask.shape
     lum = 0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2]
+    yy, xx = np.mgrid[0:H, 0:W]
+    hx, hy, hrx, hry = HEAD
+    e = np.sqrt(((xx - hx) / hrx) ** 2 + ((yy - hy) / hry) ** 2)
+    head_w = np.clip((1.12 - e) / 0.2, 0, 1)            # 1 on the head, 0 past the neck
 
-    # silhouette mask
-    mask_img = Image.new("L", (S, S), 0)
-    ImageDraw.Draw(mask_img).polygon([(x / k, y / k) for x, y in SILHOUETTE], fill=255)
-    mask_img = mask_img.filter(ImageFilter.GaussianBlur(0.6))
-    mask = np.asarray(mask_img) > 128
+    clahe = cv2.createCLAHE(clipLimit=1.6, tileGridSize=(8, 8))
+    local = clahe.apply(np.round(lum * 255).astype(np.uint8)).astype(np.float32) / 255
+    face_l = cv2.GaussianBlur(0.35 * local + 0.65 * lum, (0, 0), 1.2)
 
-    # drop foliage that shows through inside the outline (green-dominant pixels)
-    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
-    leafy = (g > r * 1.08) & (g > b * 1.02)
-    mask &= ~leafy
+    def stretch(v, region, lo_p, hi_p, gamma):
+        lo, hi = np.percentile(v[region], lo_p), np.percentile(v[region], hi_p)
+        return np.clip((v - lo) / (hi - lo + 1e-6), 0, 1) ** gamma
 
-    # edge strength: features (eyes, brows, mouth, collar, stripes)
-    gx = np.zeros_like(lum)
-    gy = np.zeros_like(lum)
-    gx[:, 1:-1] = lum[:, 2:] - lum[:, :-2]
-    gy[1:-1, :] = lum[2:, :] - lum[:-2, :]
-    edge = np.clip(np.hypot(gx, gy) * 3.0, 0, 1)
+    face_t = stretch(face_l, mask & (head_w > 0.9), 2, 99.9, 0.85)
+    body_t = stretch(lum, mask & (head_w < 0.1), 1, 99.7, 1.35) * 0.5
+    tone = head_w * face_t + (1 - head_w) * body_t
 
-    # head region (in working-resolution pixels)
-    yy, xx = np.mgrid[0:S, 0:S]
-    hx, hy, hrx, hry = 668 / k, 372 / k, 238 / k, 330 / k
-    head = (((xx - hx) / hrx) ** 2 + ((yy - hy) / hry) ** 2) < 1.0
+    # hair is near-black on a near-black page: give it a dim floor plus its own
+    # sheen, so the hairstyle (a big part of the likeness) reads
+    fx, fy, frx, fry = FACE
+    off_face = np.clip((np.sqrt(((xx - fx) / frx) ** 2 + ((yy - fy) / fry) ** 2) - 0.92) / 0.16, 0, 1)
+    hair = head_w * off_face * (yy < 640)
+    hair_l = cv2.GaussianBlur(lum, (0, 0), 1.5) ** 0.5   # lift the shadows to find the strands
+    sheen = stretch(hair_l, mask & (hair > 0.5), 3, 99.5, 1.2)
+    tone = np.maximum(tone, hair * (0.08 + 0.42 * sheen))
 
-    # contrast stretch: face and body separately, so skin detail (eyes, brows,
-    # smile, beard) survives next to the much brighter shirt
-    bright = np.zeros_like(lum)
-    for region, lo_p, hi_p, gamma in ((mask & head, 3, 99.8, 1.3), (mask & ~head, 2, 99, 1.1)):
-        lv = lum[region]
-        lo, hi = np.percentile(lv, lo_p), np.percentile(lv, hi_p)
-        bright[region] = np.clip((lum[region] - lo) / (hi - lo + 1e-6), 0, 1) ** gamma
+    # soft rim light along the outline (hair, ears, shoulders)
+    inside = cv2.distanceTransform(mask.astype(np.uint8), cv2.DIST_L2, 5)
+    tone = np.maximum(tone, 0.36 * np.exp(-inside / 7.0))
+    tone = np.maximum(tone, 0.06)                        # floor: the silhouette never vanishes
+    fade = np.clip((1310 - yy) / 260, 0, 1) ** 1.4       # fade out towards the waist
+    return tone * mask * fade, head_w
 
-    region_boost = np.where(head, 2.1, 0.5)
-    weight = (0.07 + 1.0 * bright + np.where(head, 0.85, 1.1) * edge) * region_boost * mask
-    ys, xs = np.nonzero(weight > 0)
-    w = weight[ys, xs]
-    p = w / w.sum()
-    idx = rng.choice(len(xs), size=min(n_points, len(xs) * 3), replace=True, p=p)
 
-    px = xs[idx] + rng.random(len(idx))  # sub-pixel jitter
-    py = ys[idx] + rng.random(len(idx))
-    pb = np.clip(bright[ys[idx], xs[idx]] * 0.85 + edge[ys[idx], xs[idx]] * 0.6, 0.08, 1)
+def portrait_depth(mask: np.ndarray) -> np.ndarray:
+    """Depth in portrait units: an inflated silhouette plus a rounder head."""
+    import cv2
 
-    # back to source coordinates
-    X = px * k
-    Y = py * k
+    H, W = mask.shape
+    dist = cv2.distanceTransform(mask.astype(np.uint8), cv2.DIST_L2, 5)
+    body = np.sqrt(1 - (1 - np.clip(dist / 230, 0, 1)) ** 2) * 0.2
+    yy, xx = np.mgrid[0:H, 0:W]
+    hx, hy, hrx, hry = HEAD
+    dh = 1 - ((xx - hx) / hrx) ** 2 - ((yy - hy) / hry) ** 2
+    head = np.sqrt(np.clip(dh, 0, 1)) * 0.3
+    return np.maximum(body, head)
 
-    # depth: head ellipsoid + soft torso bulge + a little luminance relief
-    hx, hy, hrx, hry = 668, 372, 238, 330
-    dh = 1 - ((X - hx) / hrx) ** 2 - ((Y - hy) / hry) ** 2
-    z_head = np.sqrt(np.clip(dh, 0, 1)) * 0.42
-    db = 1 - ((X - 790) / 660) ** 2
-    z_body = np.sqrt(np.clip(db, 0, 1)) * 0.22 * (Y > 640)
-    Z = np.maximum(z_head, z_body) + pb * 0.05 + rng.normal(0, 0.012, len(X))
 
-    # normalise: centre on the silhouette, fit height to [-1, 1]
-    cx, cy = 790.0, 740.0
-    scale = 700.0
-    nx = (X - cx) / scale
-    ny = -(Y - cy) / scale
-    nz = Z
+def build_portrait(preview: Path | None = None):
+    import cv2
 
-    q = lambda a: np.clip(np.round(a * 16000), -32767, 32767).astype("<i2")
-    buf = np.stack([q(nx), q(ny), q(nz)], axis=1).tobytes() + np.round(pb * 255).astype("u1").tobytes()
-    b64 = base64.b64encode(buf).decode()
+    bgr = cv2.imread(str(SRC / "photo.jpg"))
+    rgb = bgr[..., ::-1].astype(np.float32) / 255
+    mask = person_mask(bgr)
+    tone, head_w = portrait_tone(rgb, mask)
+    depth = portrait_depth(mask)
+
+    # average each quantity over its STEP x STEP cell (no aliasing)
+    ys, xs = np.nonzero(tone > 0)
+    x0, y0 = xs.min() // STEP * STEP, ys.min() // STEP * STEP
+    cols, rows = (xs.max() - x0) // STEP + 1, (ys.max() - y0) // STEP + 1
+    crop = lambda a: a[y0:y0 + rows * STEP, x0:x0 + cols * STEP].astype(np.float32)
+    cell = lambda a: cv2.resize(crop(a), (cols, rows), interpolation=cv2.INTER_AREA)
+    t, cov, hw, z = cell(tone), cell(mask), cell(head_w), cell(depth)
+
+    keep = (cov > 0.5) & (t > 0.02)
+    t = np.where(keep, t / np.maximum(cov, 1e-3), 0)
+
+    tone_u8 = np.where(keep, np.clip(np.round(t * 254), 1, 255), 0).astype(np.uint8)
+    z_u8 = np.clip(np.round(z[keep] / 0.5 * 255), 0, 255).astype(np.uint8)
+    n = int(keep.sum())
+
+    cx, cy = CENTRE
+    meta = dict(cols=int(cols), rows=int(rows), step=STEP / SCALE,
+                x0=(x0 + STEP / 2 - cx) / SCALE, y0=-(y0 + STEP / 2 - cy) / SCALE, zmax=0.5)
+    b64 = lambda a: base64.b64encode(a.tobytes()).decode()
     JS.mkdir(parents=True, exist_ok=True)
     (JS / "portrait-data.js").write_text(
-        "// Generated by tools/build_assets.py: particle portrait point cloud.\n"
-        "// Layout: N x (int16 x, int16 y, int16 z) scaled by 1/16000, then N x uint8 brightness.\n"
-        f"window.PORTRAIT = {{ n: {len(nx)}, data: \"{b64}\" }};\n",
+        "// Generated by tools/build_assets.py: particle portrait as a dot grid.\n"
+        "// tone: cols x rows uint8, row-major from the top (0 = no dot); depth: uint8 per dot,\n"
+        "// in the same order, scaled to [0, zmax]. Positions are in portrait units.\n"
+        "window.PORTRAIT = { n: %d, cols: %d, rows: %d, step: %.6f, x0: %.6f, y0: %.6f, zmax: %.2f,\n"
+        "  tone: \"%s\",\n  depth: \"%s\" };\n"
+        % (n, meta["cols"], meta["rows"], meta["step"], meta["x0"], meta["y0"], meta["zmax"], b64(tone_u8), b64(z_u8)),
         encoding="utf-8",
     )
-    print(f"portrait: {len(nx)} points, {len(b64) / 1024:.0f} KB base64")
+    size_kb = (JS / "portrait-data.js").stat().st_size / 1024
+    print(f"portrait: {n} dots on a {cols}x{rows} grid, {size_kb:.0f} KB")
 
     if preview:
-        W = 900
-        img = Image.new("RGB", (W, W), (11, 11, 13))
-        d = ImageDraw.Draw(img, "RGBA")
-        for x, y, br in zip(nx, ny, pb):
-            u = W / 2 + x * W * 0.42
-            v = W / 2 - y * W * 0.42
-            a = int(40 + 215 * br)
-            s = 0.7 + 1.0 * br
-            d.ellipse((u - s, v - s, u + s, v + s), fill=(242, 235, 221, a))
-        img.save(preview)
+        # rough stand-in for the WebGL render: soft additive dots, size and brightness from tone
+        S = 3
+        img = np.zeros((rows * S * 2, cols * S * 2), np.float32)
+        rr, cc = np.nonzero(keep)
+        tv = t[rr, cc]
+        for lo, hi in ((0, 0.25), (0.25, 0.5), (0.5, 0.75), (0.75, 1.01)):
+            sel = (tv >= lo) & (tv < hi)
+            imp = np.zeros_like(img)
+            np.add.at(imp, (rr[sel] * 2 * S + S, cc[sel] * 2 * S + S), 0.25 + 0.75 * tv[sel])
+            rad = (0.5 + 1.2 * (lo + hi) / 2) * S
+            k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (int(2 * rad) | 1, int(2 * rad) | 1)).astype(np.float32)
+            img += cv2.filter2D(imp, -1, cv2.GaussianBlur(k, (0, 0), rad / 3))
+        img = np.clip(img / np.percentile(img[img > 0], 99.5), 0, 1)
+        col = np.array([221, 235, 242], np.float32)  # cream, BGR
+        cv2.imwrite(str(preview), (img[..., None] * col + (1 - img[..., None]) * np.array([13, 11, 11])).astype(np.uint8))
         print(f"preview: {preview}")
 
 
