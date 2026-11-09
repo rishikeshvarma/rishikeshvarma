@@ -9,7 +9,7 @@
   body { background: transparent; }
   .card { position: relative; overflow: hidden; background: var(--ink); color: var(--cream); font-family: Inter, sans-serif; }
   .card canvas { position: absolute; }
-  .glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(200,241,53,.18), transparent 65%); }
+  .glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(200,241,53,.1), transparent 65%); }
   .name { font: 800 92px/0.92 Syne, sans-serif; letter-spacing: -0.05em; }
   .name span { color: var(--lime); }
   .role { font: 600 30px/1.2 Syne, sans-serif; color: var(--cream2); letter-spacing: -0.02em; }
@@ -32,25 +32,35 @@
 const card = new URLSearchParams(location.search).get("card") || "og";
 const root = document.getElementById("root");
 
+// The same halftone dot grid as the site's hero (assets/js/portrait.js):
+// dot size and brightness follow the tone, with a slight turn to show depth.
 function drawPortrait(canvas, opts) {
   const ctx = canvas.getContext("2d");
-  const { cx, cy, scale, rot = 0.28 } = opts;
-  const bin = atob(PORTRAIT.data), N = PORTRAIT.n;
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  const xyz = new Int16Array(bytes.buffer, 0, N * 3);
-  ctx.globalCompositeOperation = "lighter";
+  const { cx, cy, scale, rot = 0.14 } = opts;
+  const P = PORTRAIT;
+  const bytesOf = (str) => {
+    const bin = atob(str), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u;
+  };
+  const tone = bytesOf(P.tone), depth = bytesOf(P.depth);
+  const pitch = P.step * scale;
   const c = Math.cos(rot), s = Math.sin(rot);
-  for (let i = 0; i < N; i++) {
-    const x = xyz[i * 3] / 16000, y = xyz[i * 3 + 1] / 16000, z = xyz[i * 3 + 2] / 16000;
-    const b = bytes[N * 6 + i] / 255;
-    const X = x * c + z * s;
-    const persp = 4.2 / (4.2 - (-x * s + z * c));
-    const u = cx + X * scale * persp, v = cy - y * scale * persp;
-    const r = (0.6 + b * 1.25) * (scale / 330);
-    const lime = b > 0.9 && (i % 3 === 0);
-    ctx.fillStyle = lime ? `rgba(200,241,53,${0.5 + b * 0.4})` : `rgba(242,235,221,${(0.18 + b * 0.72) * 0.75})`;
-    ctx.beginPath(); ctx.arc(u, v, r, 0, Math.PI * 2); ctx.fill();
+  ctx.globalCompositeOperation = "lighter";
+  let i = 0;
+  for (let r = 0; r < P.rows; r++) {
+    for (let col = 0; col < P.cols; col++) {
+      const t = tone[r * P.cols + col];
+      if (!t) continue;
+      const b = t / 255;
+      const x = P.x0 + col * P.step, y = P.y0 - r * P.step, z = (depth[i++] / 255) * P.zmax;
+      const X = x * c + z * s;
+      const persp = 4.2 / (4.2 - (-x * s + z * c));
+      const u = cx + X * scale * persp, v = cy - y * scale * persp;
+      const rad = 0.3 * pitch * (0.22 + Math.pow(b, 0.7) * 1.35) * persp;
+      ctx.fillStyle = `rgba(242,235,221,${(0.12 + Math.pow(b, 1.15) * 0.88) * 0.95})`;
+      ctx.beginPath(); ctx.arc(u, v, rad, 0, Math.PI * 2); ctx.fill();
+    }
   }
 }
 
@@ -78,7 +88,7 @@ async function build() {
         </div>
       </div>`;
     const c = document.getElementById("c");
-    drawPortrait(canvasAt(c, 640, 0, 560, 630), { cx: 290, cy: 330, scale: 300 });
+    drawPortrait(canvasAt(c, 640, 0, 560, 630), { cx: 300, cy: 384, scale: 322 });
   } else if (card === "banner") {
     root.innerHTML = `
       <div class="card" id="c" style="width:1280px;height:400px;border-radius:24px">
@@ -91,7 +101,7 @@ async function build() {
         </div>
       </div>`;
     const c = document.getElementById("c");
-    drawPortrait(canvasAt(c, 860, 0, 420, 400), { cx: 230, cy: 210, scale: 205 });
+    drawPortrait(canvasAt(c, 800, 0, 480, 400), { cx: 290, cy: 300, scale: 258 });
   } else {
     root.innerHTML = `<div class="card fav" id="c"><b>R</b><i></i></div>`;
   }
