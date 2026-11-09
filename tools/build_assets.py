@@ -56,6 +56,11 @@ HAIR = [
     (565, 20), (630, 12), (700, 14), (755, 28), (798, 56), (830, 96), (860, 140),
     (882, 190), (892, 245), (896, 300), (890, 345), (700, 330), (520, 340),
 ]
+# The ear and sideburn on the left of the photo, which GrabCut clips into a straight edge.
+EAR = [
+    (466, 336), (450, 342), (440, 372), (437, 405), (433, 428), (433, 455), (438, 480),
+    (447, 505), (457, 524), (468, 542), (478, 440),
+]
 HEAD = (668, 380, 236, 330)       # head (hair to chin) ellipse in source px: centre x, y, radius x, y
 FACE = (676, 452, 196, 262)       # skin of the face (brows to chin)
 STEP = 5                          # dot pitch in source pixels
@@ -77,9 +82,10 @@ def person_mask(photo_bgr: np.ndarray) -> np.ndarray:
     gc[cv2.erode(poly.astype(np.uint8), disk(45)) > 0] = cv2.GC_FGD
     cv2.grabCut(photo_bgr, gc, None, np.zeros((1, 65)), np.zeros((1, 65)), 8, cv2.GC_INIT_WITH_MASK)
     fg = ((gc == cv2.GC_FGD) | (gc == cv2.GC_PR_FGD)).astype(np.uint8)
-    hair = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(hair).polygon(HAIR, fill=255)
-    fg |= (np.asarray(hair) > 0).astype(np.uint8)
+    traced = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(traced).polygon(HAIR, fill=255)
+    ImageDraw.Draw(traced).polygon(EAR, fill=255)
+    fg |= (np.asarray(traced) > 0).astype(np.uint8)
 
     # largest piece only, holes filled, edge smoothed
     _, lab, stats, _ = cv2.connectedComponentsWithStats(fg, 8)
@@ -125,6 +131,12 @@ def portrait_tone(rgb: np.ndarray, mask: np.ndarray) -> np.ndarray:
     hair_l = cv2.GaussianBlur(lum, (0, 0), 1.5) ** 0.5   # lift the shadows to find the strands
     sheen = stretch(hair_l, mask & (hair > 0.5), 3, 99.5, 1.2)
     tone = np.maximum(tone, hair * (0.08 + 0.42 * sheen))
+
+    # the ear on the left sits in shadow: lift it so it reads as an ear
+    ear = np.zeros((H, W), np.float32)
+    cv2.fillPoly(ear, [np.array(EAR, np.int32)], 1.0)
+    ear = cv2.GaussianBlur(ear, (0, 0), 6)
+    tone = tone * (1 - ear) + tone ** 0.62 * ear
 
     # soft rim light along the outline (hair, ears, shoulders)
     inside = cv2.distanceTransform(mask.astype(np.uint8), cv2.DIST_L2, 5)
