@@ -1,6 +1,6 @@
 /* =====================================================================
    rishikeshvarma.fun: core behaviour
-   nav · reveal · marquees · infinite loop scroll · typing rotator ·
+   nav · reveal · marquees · back-to-top button · typing rotator ·
    custom cursor · tilt cards · copy email · ".fun" easter egg
    ===================================================================== */
 (function () {
@@ -154,10 +154,10 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Infinite page loop + hero visibility (drives the 3D portrait)       */
+  /* Hero visibility (drives the 3D portrait) + back-to-top button       */
   /* ------------------------------------------------------------------ */
   const heroes = [...document.querySelectorAll("[data-hero]")];
-  const clone = document.querySelector("[data-loop]");
+  const toTop = document.getElementById("toTop");
 
   function heroVisibility() {
     const vh = window.innerHeight;
@@ -174,12 +174,7 @@
     scrollVel = scrollVel * 0.6 + ((y - lastY) / dt) * 1000 * 0.4;
     lastY = y;
 
-    // seamless loop: the clone hero at the bottom matches the top hero
-    const loopStart = clone.offsetTop;
-    if (y >= loopStart) {
-      window.scrollTo({ top: y - loopStart, behavior: "instant" });
-      lastY = window.scrollY;
-    }
+    if (toTop) toTop.classList.toggle("show", y > window.innerHeight * 0.8);
 
     RV.heroVis = heroVisibility();
     RV.emit("hero", RV.heroVis);
@@ -188,10 +183,7 @@
   }
   window.addEventListener("scroll", onScroll, { passive: true });
 
-  // wheeling up past the very top wraps to the end (lands 1px above the loop point)
-  window.addEventListener("wheel", (e) => {
-    if (window.scrollY <= 0 && e.deltaY < 0 && !e.ctrlKey) window.scrollTo({ top: clone.offsetTop - 1, behavior: "instant" });
-  }, { passive: true });
+  if (toTop) toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" }));
 
   /* ------------------------------------------------------------------ */
   /* More builds grid                                                    */
@@ -242,7 +234,7 @@
       const lab = t && t.dataset ? t.dataset.cursor : "";
       cur.classList.toggle("is-hover", !!t);
       cur.classList.toggle("has-label", !!lab);
-      label.textContent = lab ? { github: "GitHub", linkedin: "Say hi", visit: "Visit", read: "Read", code: "Code", open: "Open", drag: "Drag", email: "Write", call: "Call", resume: "PDF" }[lab] || lab : "";
+      label.textContent = lab ? { github: "GitHub", linkedin: "Say hi", visit: "Visit", read: "Read", code: "Code", open: "Open", drag: "Drag", email: "Write", call: "Call", resume: "PDF", top: "Top" }[lab] || lab : "";
     }, { passive: true });
     document.addEventListener("pointerleave", () => cur.classList.remove("is-live"));
     document.addEventListener("pointerenter", () => { if (shown) cur.classList.add("is-live"); });

@@ -109,6 +109,6 @@ I'm **K. Sri Rishikesh Varma**, an AI & ML engineer and final-year **B.Tech CSE 
 
 <div align="center">
 
-<sub>The full interactive version lives at <a href="https://rishikeshvarma.fun"><b>rishikeshvarma.fun</b></a>: a 3D particle portrait, a spinning project ring, and a page that never ends. Type <code>fun</code> when you get there.</sub>
+<sub>The full interactive version lives at <a href="https://rishikeshvarma.fun"><b>rishikeshvarma.fun</b></a>: a 3D particle portrait, a spinning project ring, and a skill sphere you can spin. Type <code>fun</code> when you get there.</sub>
 
 </div>

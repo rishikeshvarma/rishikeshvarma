@@ -60,7 +60,7 @@ b, strong { font-weight: 600; color: var(--cream); }
   position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-main, .foot, .hero--clone { position: relative; z-index: 2; }
+main, .foot { position: relative; z-index: 2; }
 
 .cursor { display: none; }
 @media (hover: hover) and (pointer: fine) {
@@ -176,8 +176,8 @@ h3 { font: 600 1.25rem/1.25 var(--f-display); letter-spacing: -0.01em; }
 
 .hero {
   position: relative;
-  /* 100vh (not svh) so the loop clone is always tall enough to reach the loop point */
   min-height: 100vh;
+  min-height: 100svh;
   display: grid; grid-template-rows: 1fr auto auto;
   padding: calc(var(--nav-h) + 36px) var(--gutter) 26px;
   max-width: 1440px; margin: 0 auto;
@@ -405,7 +405,18 @@ a.paper:hover { border-color: var(--lime); }
 .foot__row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; color: var(--mute); font-size: 0.88rem; }
 .foot__loop { font-family: var(--f-mono); letter-spacing: 0.04em; }
 
-.hero--clone .chip__dot, .hero--clone .rotator::after { animation: none; }
+/* back to top */
+.to-top {
+  position: fixed; right: clamp(16px, 3vw, 32px); bottom: clamp(16px, 3vw, 32px); z-index: 90;
+  width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: var(--lime); color: var(--ink); border: 0;
+  box-shadow: 0 16px 36px -12px var(--lime-glow), 0 10px 30px -12px rgba(0, 0, 0, 0.9);
+  opacity: 0; visibility: hidden; transform: translateY(16px) scale(0.9);
+  transition: opacity 0.3s, transform 0.3s, visibility 0s linear 0.3s;
+}
+.to-top.show { opacity: 1; visibility: visible; transform: none; transition: opacity 0.3s, transform 0.3s; }
+.to-top:hover { transform: translateY(-3px); }
+.to-top svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* modal */
 .modal {

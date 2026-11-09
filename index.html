@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=6">
+  <link rel="stylesheet" href="assets/css/style.css?v=7">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -324,35 +324,14 @@
   <footer class="foot">
     <div class="wrap foot__row">
       <p>© <span id="year">2026</span> K. Sri Rishikesh Varma · Built from scratch with Three.js</p>
-      <p class="foot__loop">Keep scrolling ↓ it loops back to the start</p>
+      <p class="foot__loop">psst… type f-u-n anywhere</p>
     </div>
   </footer>
 
-  <!-- ============================== LOOP CLONE (infinite scroll) ============================== -->
-  <section class="hero hero--clone" data-hero data-loop aria-hidden="true" inert>
-    <div class="hero__inner">
-      <p class="chip"><span class="chip__dot"></span>Open to AI/ML roles &amp; research internships</p>
-      <p class="hero__title">Hi, I'm<br>Rishikesh<span class="lime">.</span></p>
-      <p class="hero__line">I build <span class="rotator" data-rotator>agents that remember.</span></p>
-      <p class="hero__lede">
-        AI &amp; ML engineer and final-year CSE (AI &amp; ML) student at KMIT, Hyderabad.
-        Co-inventor on a published patent, IEEE author, and founder of
-        <span class="as-link">DUM-E Labs</span>.
-      </p>
-      <div class="hero__cta">
-        <span class="btn btn--lime">See my work <svg><use href="#i-arrow"/></svg></span>
-        <span class="btn btn--ghost">Get in touch</span>
-        <span class="btn btn--ghost"><svg><use href="#i-download"/></svg>Résumé</span>
-      </div>
-    </div>
-    <dl class="hero__stats">
-      <div><dt>Patent</dt><dd>Published</dd></div>
-      <div><dt>IEEE Xplore</dt><dd>Author</dd></div>
-      <div><dt>Local LLM</dt><dd>27B on 16&nbsp;GB</dd></div>
-      <div><dt>Open source</dt><dd>SWOC S7</dd></div>
-    </dl>
-    <p class="hero__hint"><span class="hint-mouse"></span>Move through the portrait · type <kbd>f</kbd><kbd>u</kbd><kbd>n</kbd></p>
-  </section>
+  <!-- Back to top -->
+  <button class="to-top" id="toTop" type="button" aria-label="Back to top" data-cursor="top">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
+  </button>
 
   <!-- Project detail dialog -->
   <dialog class="modal" id="projectModal" aria-labelledby="pmTitle">
@@ -369,11 +348,11 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-  <script src="assets/js/portrait-data.js?v=6"></script>
-  <script src="assets/js/data.js?v=6"></script>
-  <script src="assets/js/core.js?v=6"></script>
-  <script src="assets/js/portrait.js?v=6"></script>
-  <script src="assets/js/work.js?v=6"></script>
-  <script src="assets/js/skills.js?v=6"></script>
+  <script src="assets/js/portrait-data.js?v=7"></script>
+  <script src="assets/js/data.js?v=7"></script>
+  <script src="assets/js/core.js?v=7"></script>
+  <script src="assets/js/portrait.js?v=7"></script>
+  <script src="assets/js/work.js?v=7"></script>
+  <script src="assets/js/skills.js?v=7"></script>
 </body>
 </html>
