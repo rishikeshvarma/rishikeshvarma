@@ -5,6 +5,7 @@
 <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&pause=1100&color=C8F135&center=true&vcenter=true&width=720&lines=Agentic+systems+%C2%B7+MCP+%C2%B7+A2A;Local+LLMs%3A+27B+on+a+16+GB+GPU;Evals+that+catch+the+bugs;MCP-Shield%3A+a+firewall+for+AI+agents;Founder+%40+DUM-E+Labs" alt="Agentic systems · Local LLMs · Evals · MCP-Shield · DUM-E Labs" />
 
 <a href="https://rishikeshvarma.fun"><img src="https://img.shields.io/badge/Portfolio-rishikeshvarma.fun-C8F135?style=for-the-badge&labelColor=0B0B0D" alt="Portfolio"/></a>
+<a href="assets/K-Sri-Rishikesh-Varma-Resume.pdf"><img src="https://img.shields.io/badge/R%C3%A9sum%C3%A9-PDF-C8F135?style=for-the-badge&logo=readdotcv&logoColor=C8F135&labelColor=0B0B0D" alt="Résumé (PDF)"/></a>
 <a href="https://www.linkedin.com/in/rishikeshvarma-kucharlapati/"><img src="https://img.shields.io/badge/LinkedIn-Connect-F2EBDD?style=for-the-badge&logo=linkedin&logoColor=F2EBDD&labelColor=0B0B0D" alt="LinkedIn"/></a>
 <a href="mailto:rishikeshvarma9854@gmail.com"><img src="https://img.shields.io/badge/Email-Say_hi-F2EBDD?style=for-the-badge&logo=gmail&logoColor=F2EBDD&labelColor=0B0B0D" alt="Email"/></a>
 <a href="https://dummie-labs.github.io/.github/"><img src="https://img.shields.io/badge/DUM--E_Labs-Founder-F2EBDD?style=for-the-badge&labelColor=0B0B0D" alt="DUM-E Labs"/></a>

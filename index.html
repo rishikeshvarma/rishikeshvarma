@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=5">
+  <link rel="stylesheet" href="assets/css/style.css?v=6">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -34,6 +34,7 @@
     "image": "https://rishikeshvarma.fun/assets/img/rishikesh.jpg",
     "jobTitle": "AI & ML Engineer",
     "email": "mailto:rishikeshvarma9854@gmail.com",
+    "telephone": "+91-6301852709",
     "address": { "@type": "PostalAddress", "addressLocality": "Hyderabad", "addressRegion": "Telangana", "addressCountry": "IN" },
     "alumniOf": { "@type": "CollegeOrUniversity", "name": "Keshav Memorial Institute of Technology" },
     "founder": { "@type": "Organization", "name": "DUM-E Labs", "url": "https://dummie-labs.github.io/.github/" },
@@ -50,6 +51,8 @@
     <symbol id="i-mail" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 6.5h18v11H3zM3.5 7l8.5 6.2L20.5 7"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M8 8h11v11H8zM5 15V5h10"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M6.6 3.5h3l1.4 4.2-2 1.4a12 12 0 0 0 5.9 5.9l1.4-2 4.2 1.4v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
   </svg>
 
   <!-- Fixed 3D particle portrait (hero backdrop) -->
@@ -68,6 +71,7 @@
       <a href="#journey">Journey</a>
       <a href="#research">Research</a>
       <a href="#contact">Contact</a>
+      <a class="nav__resume" href="assets/K-Sri-Rishikesh-Varma-Resume.pdf" target="_blank" rel="noopener" data-cursor="resume">Résumé <svg><use href="#i-download"/></svg></a>
     </nav>
     <div class="nav__icons">
       <a class="icon-btn" href="https://github.com/rishikeshvarma" target="_blank" rel="noopener" aria-label="GitHub" data-cursor="github"><svg><use href="#i-github"/></svg></a>
@@ -92,6 +96,7 @@
         <div class="hero__cta">
           <a class="btn btn--lime" href="#work">See my work <svg><use href="#i-arrow"/></svg></a>
           <a class="btn btn--ghost" href="#contact">Get in touch</a>
+          <a class="btn btn--ghost" href="assets/K-Sri-Rishikesh-Varma-Resume.pdf" target="_blank" rel="noopener" data-cursor="resume"><svg><use href="#i-download"/></svg>Résumé</a>
         </div>
       </div>
       <dl class="hero__stats">
@@ -303,11 +308,13 @@
         <div class="contact__row reveal">
           <a class="btn btn--lime btn--lg" href="mailto:rishikeshvarma9854@gmail.com" data-cursor="email"><svg><use href="#i-mail"/></svg>rishikeshvarma9854@gmail.com</a>
           <button class="btn btn--ghost btn--lg" id="copyEmail" data-email="rishikeshvarma9854@gmail.com"><svg><use href="#i-copy"/></svg>Copy email</button>
+          <a class="btn btn--ghost btn--lg" href="tel:+916301852709" data-cursor="call"><svg><use href="#i-phone"/></svg>+91 63018 52709</a>
         </div>
         <div class="contact__links reveal">
           <a href="https://www.linkedin.com/in/rishikeshvarma-kucharlapati/" target="_blank" rel="noopener"><svg><use href="#i-linkedin"/></svg>LinkedIn<svg class="arr"><use href="#i-arrow"/></svg></a>
           <a href="https://github.com/rishikeshvarma" target="_blank" rel="noopener"><svg><use href="#i-github"/></svg>GitHub<svg class="arr"><use href="#i-arrow"/></svg></a>
           <a href="https://dummie-labs.github.io/.github/" target="_blank" rel="noopener"><img src="assets/img/dume-labs.png" alt="" width="20" height="20">DUM-E Labs<svg class="arr"><use href="#i-arrow"/></svg></a>
+          <a class="contact__resume" href="assets/K-Sri-Rishikesh-Varma-Resume.pdf" download="K-Sri-Rishikesh-Varma-Resume.pdf" data-cursor="resume"><svg><use href="#i-download"/></svg>Download résumé (PDF)</a>
         </div>
         <p class="contact__note reveal">Based in Hyderabad, India · IST (UTC+5:30) · usually replies within a day</p>
       </div>
@@ -335,6 +342,7 @@
       <div class="hero__cta">
         <span class="btn btn--lime">See my work <svg><use href="#i-arrow"/></svg></span>
         <span class="btn btn--ghost">Get in touch</span>
+        <span class="btn btn--ghost"><svg><use href="#i-download"/></svg>Résumé</span>
       </div>
     </div>
     <dl class="hero__stats">
@@ -361,11 +369,11 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-  <script src="assets/js/portrait-data.js?v=5"></script>
-  <script src="assets/js/data.js?v=5"></script>
-  <script src="assets/js/core.js?v=5"></script>
-  <script src="assets/js/portrait.js?v=5"></script>
-  <script src="assets/js/work.js?v=5"></script>
-  <script src="assets/js/skills.js?v=5"></script>
+  <script src="assets/js/portrait-data.js?v=6"></script>
+  <script src="assets/js/data.js?v=6"></script>
+  <script src="assets/js/core.js?v=6"></script>
+  <script src="assets/js/portrait.js?v=6"></script>
+  <script src="assets/js/work.js?v=6"></script>
+  <script src="assets/js/skills.js?v=6"></script>
 </body>
 </html>

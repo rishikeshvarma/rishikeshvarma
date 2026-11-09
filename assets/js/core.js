@@ -242,7 +242,7 @@
       const lab = t && t.dataset ? t.dataset.cursor : "";
       cur.classList.toggle("is-hover", !!t);
       cur.classList.toggle("has-label", !!lab);
-      label.textContent = lab ? { github: "GitHub", linkedin: "Say hi", visit: "Visit", read: "Read", code: "Code", open: "Open", drag: "Drag", email: "Write" }[lab] || lab : "";
+      label.textContent = lab ? { github: "GitHub", linkedin: "Say hi", visit: "Visit", read: "Read", code: "Code", open: "Open", drag: "Drag", email: "Write", call: "Call", resume: "PDF" }[lab] || lab : "";
     }, { passive: true });
     document.addEventListener("pointerleave", () => cur.classList.remove("is-live"));
     document.addEventListener("pointerenter", () => { if (shown) cur.classList.add("is-live"); });
