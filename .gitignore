@@ -1,0 +1,3 @@
+# original source images (uncropped photo etc.) stay local
+tools/src/
+__pycache__/
